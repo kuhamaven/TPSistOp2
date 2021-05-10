@@ -28,6 +28,9 @@ o	Buena redacción
 o	Código adjunto (por lo menos de los archivos modificados)
 •	Originalidad en las respuestas y soluciones
 La falla en cualquiera de estos aspectos, resta puntos.
+
+Google docs: https://docs.google.com/document/d/1uL5Rdice7c5MWP4g8dFWkYNn9Rc8VH5nio8lwMy_ze8/edit?usp=sharing
+
      */
 
 }
