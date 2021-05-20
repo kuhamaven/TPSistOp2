@@ -110,7 +110,7 @@ public class ProducerConsumerSemaphore {
         }
 
         // Avoid multiple elements with same number
-        private synchronized int getElement(){
+        private synchronized int getElement() {
             return element++;
         }
 
@@ -123,18 +123,20 @@ public class ProducerConsumerSemaphore {
         }
 
         public void produce(String name) throws InterruptedException {
-                while (true) {
-                    int currentElement = getElement();
-                    int delay = ThreadLocalRandom.current().nextInt(0, 1500 + 1);
-                    Thread.sleep(delay);
-                    empty.down();
-                    mutex.down();
-                    System.out.println(name + " produced element: " + currentElement);
+            while (true) {
+                int currentElement = getElement();
+                int delay = ThreadLocalRandom.current().nextInt(0, 1500 + 1);
+                Thread.sleep(delay);
+                empty.down();
+                mutex.down();
+                System.out.println(name + " produced element: " + currentElement);
+                synchronized (this) {
                     buffer.add(currentElement);
-                    mutex.up();
-                    full.up();
-                    addToTimeline();
                 }
+                mutex.up();
+                full.up();
+                addToTimeline();
+            }
         }
 
         public void consume(String name) throws InterruptedException {
@@ -143,7 +145,9 @@ public class ProducerConsumerSemaphore {
                 Thread.sleep(1000);
                 full.down();
                 mutex.down();
-                element = buffer.removeFirst();
+                synchronized (this) {
+                    element = buffer.removeFirst();
+                }
                 System.out.println(name + " consumed element: " + element);
                 mutex.up();
                 empty.up();
