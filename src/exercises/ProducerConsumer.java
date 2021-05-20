@@ -1,3 +1,8 @@
+package exercises;
+
+import resources.DrawGraph;
+
+import javax.swing.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.LinkedList;
 
@@ -30,18 +35,38 @@ public class ProducerConsumer {
             }
         });
 
+        Thread graph = new Thread(() -> startGraph(shared));
+
         prod_thread.start();
         cons_thread.start();
+        graph.start();
 
         prod_thread.join();
         cons_thread.join();
+        graph.join();
+    }
+
+    public static void startGraph(SharedArea shared) {
+        DrawGraph mainPanel = new DrawGraph(shared.getTimeline());
+        JFrame frame = new JFrame("Cantidad en el buffer");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(mainPanel);
+        frame.pack();
+        frame.setLocationByPlatform(true);
+        frame.setVisible(true);
+
+        while (true) {
+            frame.revalidate();
+            frame.repaint();
+        }
     }
 
     public static class SharedArea {
 
         final int SIZE;
         private LinkedList<Integer> buffer = new LinkedList<>();
-        ;
+        private final LinkedList<Integer> bufferQuantityTimeline = new LinkedList<>();
+
         private int mutex = 1;
         private int empty;
         private int full = 0;
@@ -49,6 +74,14 @@ public class ProducerConsumer {
         public SharedArea(int size) {
             SIZE = size;
             this.empty = size;
+        }
+
+        public LinkedList<Integer> getTimeline() {
+            return bufferQuantityTimeline;
+        }
+
+        public void addToTimeline() {
+            bufferQuantityTimeline.add(buffer.size());
         }
 
         public void produce() throws InterruptedException {
@@ -62,6 +95,7 @@ public class ProducerConsumer {
                 buffer.add(element++);
                 upMutex();
                 upFull();
+                addToTimeline();
             }
         }
 
@@ -75,6 +109,7 @@ public class ProducerConsumer {
                 System.out.println("            Consume " + element);
                 upMutex();
                 upEmpty();
+                addToTimeline();
             }
         }
 

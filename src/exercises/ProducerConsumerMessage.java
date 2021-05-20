@@ -1,5 +1,8 @@
-package message;
+package exercises;
 
+import message.Consumer;
+import message.Producer;
+import message.SocketThread;
 import resources.DrawGraph;
 
 import javax.swing.*;
@@ -28,10 +31,6 @@ public class ProducerConsumerMessage {
         producer.join();
         consumer.join();
         graph.join();
-    }
-
-    public enum SocketType {
-        PRODUCER, CONSUMER
     }
 
     public static void startServer() {
@@ -82,7 +81,7 @@ public class ProducerConsumerMessage {
 
     public static void startGraph() {
         DrawGraph mainPanel = new DrawGraph(shared.getTimeline());
-        JFrame frame = new JFrame("Cantidad del buffer");
+        JFrame frame = new JFrame("Cantidad en el buffer");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(mainPanel);
         frame.pack();
@@ -96,7 +95,7 @@ public class ProducerConsumerMessage {
     }
 
     public static class SharedArea {
-        final int SIZE;
+        public final int SIZE;
         private final LinkedList<Integer> buffer = new LinkedList<>();
         private final LinkedList<Integer> bufferQuantityTimeline = new LinkedList<>();
         private int mutex = 1;

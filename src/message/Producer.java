@@ -1,5 +1,8 @@
 package message;
 
+import exercises.ProducerConsumerMessage.SharedArea;
+import resources.SocketType;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
@@ -7,9 +10,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Producer {
     private final Socket SOCKET;
-    private ProducerConsumerMessage.SharedArea shared;
+    private final SharedArea shared;
 
-    public Producer(String host, int port, ProducerConsumerMessage.SharedArea shared) throws IOException {
+    public Producer(String host, int port, SharedArea shared) throws IOException {
         SOCKET = new Socket(host, port);
         this.shared = shared;
     }
@@ -25,7 +28,7 @@ public class Producer {
                 }
                 int delay = ThreadLocalRandom.current().nextInt(0, 1500 + 1);
                 Thread.sleep(delay);
-                dataOutputStream.writeUTF(ProducerConsumerMessage.SocketType.PRODUCER + " " + (i++) + "\n");
+                dataOutputStream.writeUTF(SocketType.PRODUCER + " " + (i++) + "\n");
             }
         } catch (Exception e) {
             e.printStackTrace();

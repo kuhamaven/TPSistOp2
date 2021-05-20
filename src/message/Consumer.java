@@ -1,14 +1,17 @@
 package message;
 
+import exercises.ProducerConsumerMessage.SharedArea;
+import resources.SocketType;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
 public class Consumer {
     private final Socket SOCKET;
-    private ProducerConsumerMessage.SharedArea shared;
+    private final SharedArea shared;
 
-    public Consumer(String host, int port, ProducerConsumerMessage.SharedArea shared) throws IOException {
+    public Consumer(String host, int port, SharedArea shared) throws IOException {
         SOCKET = new Socket(host, port);
         this.shared = shared;
     }
@@ -23,7 +26,7 @@ public class Consumer {
                     Thread.sleep(1000);
                 }
                 Thread.sleep(1000);
-                dataOutputStream.writeUTF(ProducerConsumerMessage.SocketType.CONSUMER + " " + (i++) + "\n");
+                dataOutputStream.writeUTF(SocketType.CONSUMER + " " + (i++) + "\n");
             }
         } catch (Exception e) {
             e.printStackTrace();

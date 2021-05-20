@@ -1,5 +1,8 @@
 package message;
 
+import exercises.ProducerConsumerMessage;
+import resources.SocketType;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.concurrent.ThreadLocalRandom;
@@ -39,10 +42,10 @@ public class SocketThread extends Thread {
                     return;
                 } else {
                     type = type.replaceAll("[^a-zA-Z ]", "");
-                    if (type.equals(ProducerConsumerMessage.SocketType.CONSUMER.name())) {
+                    if (type.equals(SocketType.CONSUMER.name())) {
                         consume();
                     }
-                    if (type.equals(ProducerConsumerMessage.SocketType.PRODUCER.name())) {
+                    if (type.equals(SocketType.PRODUCER.name())) {
                         produce(Integer.parseInt(id));
                     }
                 }
