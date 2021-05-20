@@ -1,3 +1,8 @@
+package exercises;
+
+import resources.DrawGraph;
+
+import javax.swing.*;
 import java.util.LinkedList;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -42,20 +47,48 @@ class ProducerConsumerMonitor {
             }
         });
 
+        Thread graph = new Thread(() -> startGraph(producerConsumerMonitor));
+
         prod_thread.start();
         cons_thread.start();
+        graph.start();
 
         prod_thread.join();
         cons_thread.join();
+        graph.join();
+    }
+
+    public static void startGraph(Monitor monitor) {
+        DrawGraph mainPanel = new DrawGraph(monitor.getTimeline());
+        JFrame frame = new JFrame("Cantidad en el buffer");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(mainPanel);
+        frame.pack();
+        frame.setLocationByPlatform(true);
+        frame.setVisible(true);
+
+        while (true) {
+            frame.revalidate();
+            frame.repaint();
+        }
     }
 
     public static class Monitor {
         Integer element = 0;
         Integer N;
         LinkedList<Integer> elements = new LinkedList<>();
+        LinkedList<Integer> bufferQuantityTimeline = new LinkedList<>();
 
         public Monitor(Integer n) {
             N = n;
+        }
+
+        public synchronized LinkedList<Integer> getTimeline() {
+            return bufferQuantityTimeline;
+        }
+
+        public synchronized void addToTimeline() {
+            bufferQuantityTimeline.add(elements.size() + 1);
         }
 
         public synchronized void produce() throws InterruptedException {
@@ -70,6 +103,7 @@ class ProducerConsumerMonitor {
                 notify();
                 System.out.println("Produce thread started");
             }
+            addToTimeline();
         }
 
         public synchronized void consume() throws InterruptedException {
@@ -77,13 +111,14 @@ class ProducerConsumerMonitor {
                 System.out.println("Consumer Thread waiting, elements size: " + elements.size());
                 wait();
             }
-            var elementConsumed = elements.removeFirst();
+            Integer elementConsumed = elements.removeFirst();
             if (elements.size() == N - 1) {
                 notify();
                 System.out.println("Consumer Thread started, elements size: " + elements.size());
 
             }
             System.out.println("            Consume " + elementConsumed);
+            addToTimeline();
         }
     }
 }

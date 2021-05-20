@@ -1,5 +1,8 @@
 package exercises;
 
+import resources.DrawGraph;
+
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +16,7 @@ public class ProducerConsumerSemaphore {
         List<Producer> producers = new ArrayList<>();
         int consumersSize = Scanner.getInt("Ingrese la cantidad deseada de consumidores: ");
         int producersSize = Scanner.getInt("Ingrese la cantidad deseada de productores: ");
+        Thread graph = new Thread(() -> startGraph(shared));
 
         // Create threads
         for (int i = 0; i < consumersSize; i++) consumers.add(new Consumer(shared, "Consumer " + i));
@@ -21,10 +25,27 @@ public class ProducerConsumerSemaphore {
         // Start threads
         for (Producer p : producers) p.start();
         for (Consumer c : consumers) c.start();
+        graph.start();
 
         // Join threads
         for (Producer p : producers) p.join();
         for (Consumer c : consumers) c.join();
+        graph.join();
+    }
+
+    public static void startGraph(SharedArea shared) {
+        DrawGraph mainPanel = new DrawGraph(shared.getTimeline());
+        JFrame frame = new JFrame("Cantidad en el buffer");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(mainPanel);
+        frame.pack();
+        frame.setLocationByPlatform(true);
+        frame.setVisible(true);
+
+        while (true) {
+            frame.revalidate();
+            frame.repaint();
+        }
     }
 
     public static class Consumer {
@@ -78,6 +99,7 @@ public class ProducerConsumerSemaphore {
         final int SIZE;
         private int element;
         private final LinkedList<Integer> buffer = new LinkedList<>();
+        private final LinkedList<Integer> bufferQuantityTimeline = new LinkedList<>();
         private final Semaphore mutex = new Semaphore(1, "mutex");
         private final Semaphore empty;
         private final Semaphore full = new Semaphore(0, "full");
@@ -92,6 +114,14 @@ public class ProducerConsumerSemaphore {
             return element++;
         }
 
+        public LinkedList<Integer> getTimeline() {
+            return bufferQuantityTimeline;
+        }
+
+        public void addToTimeline() {
+            bufferQuantityTimeline.add(buffer.size() + 1);
+        }
+
         public void produce(String name) throws InterruptedException {
                 while (true) {
                     int currentElement = getElement();
@@ -103,6 +133,7 @@ public class ProducerConsumerSemaphore {
                     buffer.add(currentElement);
                     mutex.up();
                     full.up();
+                    addToTimeline();
                 }
         }
 
@@ -116,6 +147,7 @@ public class ProducerConsumerSemaphore {
                 System.out.println(name + " consumed element: " + element);
                 mutex.up();
                 empty.up();
+                addToTimeline();
             }
         }
 
