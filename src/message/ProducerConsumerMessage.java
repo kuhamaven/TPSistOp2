@@ -76,7 +76,7 @@ public class ProducerConsumerMessage {
 
     public static class SharedArea {
         final int SIZE;
-        private LinkedList<Integer> buffer = new LinkedList<>();
+        private final LinkedList<Integer> buffer = new LinkedList<>();
         private int mutex = 1;
         private int empty;
         private int full = 0;
