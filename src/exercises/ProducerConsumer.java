@@ -81,7 +81,7 @@ public class ProducerConsumer {
         }
 
         public void addToTimeline() {
-            bufferQuantityTimeline.add(buffer.size());
+            bufferQuantityTimeline.add(buffer.size() + 1);
         }
 
         public void produce() throws InterruptedException {
