@@ -1,5 +1,8 @@
 package message;
 
+import resources.DrawGraph;
+
+import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,14 +17,17 @@ public class ProducerConsumerMessage {
         Thread server = new Thread(ProducerConsumerMessage::startServer);
         Thread producer = new Thread(ProducerConsumerMessage::startProducer);
         Thread consumer = new Thread(ProducerConsumerMessage::startConsumer);
+        Thread graph = new Thread(ProducerConsumerMessage::startGraph);
 
         server.start();
         producer.start();
         consumer.start();
+        graph.start();
 
         server.join();
         producer.join();
         consumer.join();
+        graph.join();
     }
 
     public enum SocketType {
@@ -74,9 +80,25 @@ public class ProducerConsumerMessage {
         }
     }
 
+    public static void startGraph() {
+        DrawGraph mainPanel = new DrawGraph(shared.getTimeline());
+        JFrame frame = new JFrame("Cantidad del buffer");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(mainPanel);
+        frame.pack();
+        frame.setLocationByPlatform(true);
+        frame.setVisible(true);
+
+        while (true) {
+            frame.revalidate();
+            frame.repaint();
+        }
+    }
+
     public static class SharedArea {
         final int SIZE;
         private final LinkedList<Integer> buffer = new LinkedList<>();
+        private final LinkedList<Integer> bufferQuantityTimeline = new LinkedList<>();
         private int mutex = 1;
         private int empty;
         private int full = 0;
@@ -88,6 +110,14 @@ public class ProducerConsumerMessage {
 
         public LinkedList<Integer> getBuffer() {
             return buffer;
+        }
+
+        public LinkedList<Integer> getTimeline() {
+            return bufferQuantityTimeline;
+        }
+
+        public void addToTimeline() {
+            bufferQuantityTimeline.add(buffer.size());
         }
 
         public void downEmpty() throws InterruptedException {

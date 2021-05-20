@@ -62,6 +62,7 @@ public class SocketThread extends Thread {
         shared.getBuffer().add(element);
         shared.upMutex();
         shared.upFull();
+        shared.addToTimeline();
     }
 
     private void consume() throws InterruptedException {
@@ -72,5 +73,6 @@ public class SocketThread extends Thread {
         System.out.println("                Consume: " + element);
         shared.upMutex();
         shared.upEmpty();
+        shared.addToTimeline();
     }
 }
